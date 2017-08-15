@@ -1,0 +1,172 @@
+﻿@using Microsoft.AspNetCore.Http
+@using _900.Models
+@model _900.Models.ScheduleGridModel
+@{
+    var isAuthenticated = User != null && User.Identity.IsAuthenticated;
+}
+
+<div id="home" class="tab-pane fade in active">
+
+    <div class="col-xs-12 col-sm-9 left-block">
+
+        <div class="grid-calendar">
+            <ul class="nav nav-tabs">
+                @{
+                    var currentGroup = 4;
+                    if (ViewBag.GroupNumber != null)
+                    {
+                        currentGroup = ViewBag.GroupNumber;
+                    }
+
+                    foreach (var tab in Model.StudyGroups)
+                    {
+
+                        <li id="groupTab" class="@(tab.IdGroup==currentGroup? "active":"")" data-group-id="@tab.IdGroup">
+                            <a href="javascript:void(0);">@tab.GroupName</a>
+                        </li>
+
+                    }
+                }
+            </ul>
+            <div class="table-responsive">
+                @if (!isAuthenticated && currentGroup == -1)
+                {
+                    <div class="my-anon" >
+                        <img src="~/images/900-anon.png" />
+                        <p>You need to login first</p>
+                    </div>
+                }
+                else if (isAuthenticated && currentGroup == -1 && !@Model.Schedule.Any()) {
+                    <div class="my-anon">
+                        <img src="~/images/900-no-subjects.png" />
+                        <p>You need to login first</p>
+                    </div>
+                }
+                else
+                {
+                    <table>
+                        <thead>
+                            <tr>
+                                <th></th>
+                                @for (var i = 0; i < 6; i++)
+                                {
+                                    <th data-date="@Model.StartOfWeek.AddDays(i).ToString("dd.MM.yyyy HH:mm:f")">
+                                        @Model.StartOfWeek.AddDays(i).DayOfWeek @Model.StartOfWeek.AddDays(i).Day
+                                    </th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody id="grid-table">
+                            @foreach (var frame in @Model.TimeSlots)
+                            {
+                                <tr>
+                                    <th data-time-slot="@frame.Time1">
+                                        @frame.Time1
+                                    </th>
+
+                                    @for (var i = 0; i < 6; i++)
+                                    {
+                                        <td>
+                                            <div class="content"
+                                                 data-time-slot="@frame.Time1" data-day="@Model.StartOfWeek.AddDays(i).ToString("dd.MM.yyyy HH:mm:f")">
+                                                @foreach (var subject in @Model.Schedule.Where(subject => subject.Date == Model.StartOfWeek.AddDays(i).Date.Ticks && subject.IdTimeNavigation.Time1 == @frame.Time1))
+                                                {
+                                                    <div class="subjectRow">
+                                                        <a id="subject" data-subject-id="@subject.IdSubjectNavigation.IdSubject" href="javascript:void(0);"> @subject.IdSubjectNavigation.SubjectShort @subject.RoomNumber</a><br />
+                                                    </div>
+                                                }
+                                            </div>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+
+            </div>
+        </div>
+    </div><!--/.col-xs-12.col-sm-9-->
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        (function () {
+            var dayOfWeelSelector = 'data-date',
+                timeSelector = 'data-time-slot',
+                cellSelectorDay = 'data-day',
+                cellSelectorTime = 'data-time-slot';
+            var firstDate = null,
+                lastDate = null;
+            var m = moment();
+            var color = 'rgb(249, 250, 250)';
+            $(`.grid-calendar table thead th[${dayOfWeelSelector}]`).each(function () {
+                var $el = $(this);
+                var date = moment($el.attr(dayOfWeelSelector), "DD.MM.YYYY HH:mm:ss");
+                firstDate = firstDate || date;
+                lastDate = date;
+                if (moment().isSame(date, 'd')) {
+                    $el.addClass("active");
+                }
+            });
+
+            $(`.grid-calendar table tbody th[${timeSelector}]`).each(function () {
+                var $el = $(this);
+                var dd = $el.attr(timeSelector).split('-');
+                var beginningTime = moment(dd[0], 'HH:mm');
+                var endTime = moment(dd[1], 'HH:mm');
+                var m = moment();
+                if (m.isBetween(firstDate, lastDate) && m.isBetween(beginningTime, endTime)) {
+                    $el.addClass("active");
+                    return false;
+                }
+            });
+            $(`.grid-calendar table tbody [${cellSelectorDay}][${cellSelectorTime}]`).each(function () {
+
+                var $el = $(this);
+                var dd = $el.attr(cellSelectorTime).split('-');
+
+                var date = moment($el.attr(cellSelectorDay), "DD.MM.YYYY HH:mm:ss");
+                var beginningTime = moment(dd[0], 'HH:mm').year(date.year()).month(date.month()).date(date.date()),
+                    endTime = moment(dd[1], 'HH:mm').year(date.year()).month(date.month()).date(date.date());
+
+                if (m.isBetween(beginningTime, endTime)) {
+                    $el.addClass("active");
+                    console.log("found active", dd);
+                    var start = beginningTime,
+                        end = endTime,
+                        current = m,
+                        percentage = (current - start) / (end - start) * 100;
+
+                    $el.css("background",
+                        `white linear-gradient(to bottom, ${color}, ${color} ${percentage}%, transparent 0%, transparent 100%)`);
+                    $el.addClass("active");
+                } else if (m.isAfter(endTime)) {
+                    $el.css("background", `${color}`);
+                    $el.removeClass("active");
+                } else {
+                    $el.css("background", `white`);
+                    $el.removeClass("active");
+                }
+            });
+
+        })();
+
+        (function () {
+            var loader = '<div class="loader"></div><br/>   ';
+            $(".nav.nav-tabs #groupTab").not(".active").on("click",
+           function () {
+               $(".nav.nav-tabs #groupTab.active").removeClass('active');
+               $(this).find('a').html(loader);
+               $("#grid-table").addClass("fade");
+               window._setGroup($(this).attr('data-group-id'));
+           });
+
+            $(".subjectRow #subject").on("click", function () {
+                window._setSubject($(this).attr('data-subject-id'));
+            });
+
+        })();
+    });
+</script>

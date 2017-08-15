@@ -1,0 +1,10 @@
+﻿//@import "../../node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
+//@import "../../node_modules/font-awesome/scss/font-awesome.scss";
+//@import "../../node_modules/angularjs-toaster/toaster.scss";
+@import "import/_animate.scss";
+@import "import/_main.scss";
+
+html,
+body {
+  overflow-x: hidden; /* Prevent scroll on narrow devices */
+}

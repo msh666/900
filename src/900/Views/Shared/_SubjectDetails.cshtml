@@ -1,0 +1,115 @@
+﻿@using _900.Models
+@model _900.Models.SubjectDetails
+
+<div id="subject-details">
+    <div class="course-info">
+        <div class="title">
+            @if (string.IsNullOrWhiteSpace(Model.Subject.SubjectFull))
+            {
+                <h1>Select any subject in the table to display information about it.</h1>
+
+            }
+            else
+            {
+                <h1>@Model.Subject.SubjectFull</h1>
+            }
+
+        </div>
+        <div class="description">
+            <ul class="list-unstyled  @(string.IsNullOrWhiteSpace(Model.Subject.SubjectFull) ? "hidden" : "")">
+                <li>
+                    <div class="course-param">
+                        <h2>Primary Instructors</h2>
+                    </div>
+                    @foreach (var subject in @Model.Subject.SubjectProfessor)
+                    {
+                        <div class="course-value">
+                            <h3>@subject.IdProfessorNavigation.Professor1 </h3>
+                        </div>
+                    }
+                </li>
+                <li>
+                    <div class="course-param">
+                        <h2>Teacher Assistant</h2>
+                    </div>
+                    <div class="course-value">
+                        <h3>Tipok 1</h3>
+                        <h3>Tipok 2</h3>
+                    </div>
+                </li>
+                <li>
+                    <div class="course-param">
+                        <h2>Office Hours</h2>
+                    </div>
+                    <div class="course-value">
+                        <h3>461</h3>
+                        <h3>Friday, 12:00 - 13:30</h3>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="sidebar-footer">
+        @{
+            if (!string.IsNullOrWhiteSpace(Model.Subject.SubjectFull))
+            {
+                if (!Model.CanFollow)
+                {
+                    <p>To add this subject to your personal schedule - login first</p>
+                    <button class="follow" type="button" disabled>Add to MY</button>
+                }
+                else
+                {
+                    if (Model.IsFollowed)
+                    {
+                        <button class="unfollow" type="button">Remove from MY</button>
+                        <button class="follow" type="button" hidden="">Add to MY</button>
+                    }
+                    else
+                    {
+                        <button class="follow" type="button">Add to MY</button>
+                        <button class="unfollow" type="button" hidden>Remove from MY</button>
+                    }
+                }
+            }
+        }
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $(".sidebar-footer .follow").on("click",
+            function () {
+                $(this).hide();
+                $(".sidebar-footer .unfollow").show();
+                $.ajax({
+                    url: "@Url.Action("Follow", "Schedule")",
+                    type: "POST",
+                    data: { subjectId: @Model.Subject.IdSubject }
+                }).done(function() {
+                    if (window._getCurrentGroup() == -1) {
+                        $("#grid-table").addClass("fade");
+                        window._setGroup();
+                    }
+                });
+            });
+    });
+
+    $(document).ready(function () {
+        $(".sidebar-footer .unfollow").on("click",
+            function () {
+                $(this).hide();
+                $(".sidebar-footer .follow").show();
+                $.ajax({
+                    url: "@Url.Action("Unfollow", "Schedule")",
+                    type: "POST",
+                    data: { subjectId: @Model.Subject.IdSubject }
+                }).done(function() {
+                    if (window._getCurrentGroup() == -1) {
+                        $("#grid-table").addClass("fade");
+                        window._setGroup();
+                    }
+                });
+            });
+    });
+</script>

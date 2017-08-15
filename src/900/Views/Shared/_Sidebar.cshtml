@@ -1,0 +1,173 @@
+﻿@using _900.Models
+
+<div class="col-xs-6 col-sm-3 sidebar-offcanvas right-block" id="sidebar">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <!-- Tabs -->
+            <ul class="nav panel-tabs">
+                <li class="active"><a href="#tab1" id="tab-1" data-toggle="tab">Details</a></li>
+                <li><a href="#tab2" data-toggle="tab">Calendar</a></li>
+            </ul>
+        </div>
+        <div class="panel-body">
+            <div class="tab-content">
+                <div class="tab-pane active" id="tab1">
+                    @{
+                        Html.RenderPartial("_SubjectDetails", new SubjectDetails());
+                    }
+
+                </div>
+
+                <div class="tab-pane" id="tab2">
+
+                    @* Calendar *@
+                    <div class="calendar">
+                        <div style="overflow:hidden;">
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-md-12" style="overflow-x:auto;">
+                                        <div id="datetimepicker12"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--@* TODO uncommet if needed *@
+                            <div class="subject-colors">
+                            <ul class="list-unstyled circles">
+                                @* TODO color loop *@
+                                <li style="color:rgb(255,83,13)"></li>
+                                <li style="color:rgb(111,207,151)"></li>
+                                <li style="color:rgb(73,175,233)"></li>
+                                <li style="color:rgb(242,201,76)"></li>
+                                <li style="color:rgb(187,101,217)"></li>
+                            </ul>
+                        </div>
+                        <hr />
+                        <div class="info">
+                            @*<div data-canvasCircle data-day=""></div>*@
+                            <canvas id="canvas" width="25" height="25">
+                                This text is displayed if your browser does not support HTML5 Canvas.
+                            </canvas>
+                            <h2>Current courses</h2>
+                            <ul class="list-unstyled">
+                                @* TODO *@
+                                <li style="border-color:rgb(255,83,13)">Product Design</li>
+                                <li style="border-color:rgb(111,207,151)">Software Engineering and Development</li>
+                                <li style="border-color:rgb(73,175,233)" class="active">C will never rust: Features of Linux Kernel and libc implementation for Elbrus Microprocessor Architecture</li>
+                                <li style="border-color:rgb(242,201,76)">Pattern Oriented Design</li>
+                            </ul>
+                        </div>-->
+                    </div>
+                    @* !Calendar *@
+                </div>
+            </div>
+        </div>
+    </div><!--/.sidebar-offcanvas-->
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        $(function () {
+            function addActiveWeek() {
+                var picker = window._$picker;
+                var week = picker.find('.day.active').parent();
+                picker.find(".active-week").removeClass("active-week");
+                week.addClass("active-week");
+            }
+
+
+            var $picker = $('#datetimepicker12');
+            window._$picker = $picker;
+
+            $picker.datetimepicker({
+                inline: true,
+                format: 'YYYY-MM-DD',
+            }).on("dp.change", function (e) {
+                window._setGroup()
+                .done(function () {
+                    addActiveWeek();
+                    onDayChanged();
+                });
+            });
+
+            function onDayChanged() {
+                var start = window._getSelectedDay().startOf('isoWeek'),
+                    end = window._getSelectedDay().endOf('isoWeek');
+                $("#navbar-week").html(`${start.format('MMM DD')} - ${end.format('MMM DD, YYYY')}`);
+            }
+
+
+
+            function getCalendarRange() {
+                //mm/dd/yyyy
+                var pattern = 'MM/DD/YYYY';
+                var first = $("[data-action=selectDay]:first").attr("data-day");
+                var last = $("[data-action=selectDay]:last").attr("data-day");
+                //first = moment(first, pattern).format('DD.MM.YYYY HH:mm:ss');
+                //last = moment(last, pattern).format('DD.MM.YYYY HH:mm:ss');
+                first = moment(first, pattern).format('x');
+                last = moment(last, pattern).format('x');
+                var currentGroup = window._getCurrentGroup();
+
+                //TODO: mock
+
+                var jsonResult = [
+                    { subjectColor: '#FF530D', date: '04/20/2017' },
+                    { subjectColor: '#6FCF97', date: '04/20/2017' },
+                    { subjectColor: '#49AFE9', date: '04/20/2017' },
+                    { subjectColor: '#F2C94C', date: '04/20/2017' },
+                //
+                    { subjectColor: '#6FCF97', date: '04/19/2017' },
+                    { subjectColor: '#BB65D9', date: '04/19/2017' }
+                ];
+
+                //debugger;
+                grouped = jsonResult.reduce(function (r, a) {
+                    r[a.date] = r[a.date] || [];
+                    r[a.date].push(a);
+                    return r;
+                }, {});
+
+                $("canvas.cell-canvas").remove();
+                for (var key in grouped) {
+                    if (grouped.hasOwnProperty(key)) {
+                        var gr = grouped[key];
+                        var colors = gr.map(x => x.subjectColor);
+                        var cell = $(`[data-action=selectDay][data-day='${key}']`)
+                        if (cell) {
+                            var newCanvas = $('<canvas/>', { 'class': 'cell-canvas' }).width(25).height(25);
+                            plotData(newCanvas, colors);
+                            cell.append(newCanvas);
+                        }
+                    }
+                }
+
+                function plotData(canvas, colors) {
+                    canvas = canvas.getContext ? canvas : canvas[0];
+                    var ctx = canvas.getContext("2d");
+                    var lastend = 0;
+                    var myTotal = colors.length;
+                    var w = canvas.width;
+                    var h = canvas.height;
+
+                    ctx.clearRect(0, 0, w, h);
+
+                    //Тут где-то лажа, они овальные, а не круглые
+                    for (var i = 0; i < colors.length; i++) {
+                        ctx.fillStyle = colors[i];
+                        ctx.beginPath();
+                        ctx.moveTo(w / 2, h / 2);
+                        ctx.arc(w / 2, h / 2, h / 2, lastend, lastend + (Math.PI * 2 * (1 / myTotal)), false);
+                        ctx.lineTo(w / 2, h / 2);
+                        ctx.fill();
+                        lastend += Math.PI * 2 * (1 / myTotal);
+                    }
+                }
+            }
+
+            addActiveWeek();
+            onDayChanged();
+        });
+    });
+</script>

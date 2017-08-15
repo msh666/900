@@ -1,0 +1,8 @@
+/Users/Fedyukov/Desktop/Git/900/src/900/bin/Release/netcoreapp1.0/900.deps.json
+/Users/Fedyukov/Desktop/Git/900/src/900/bin/Release/netcoreapp1.0/900.runtimeconfig.json
+/Users/Fedyukov/Desktop/Git/900/src/900/bin/Release/netcoreapp1.0/900.runtimeconfig.dev.json
+/Users/Fedyukov/Desktop/Git/900/src/900/bin/Release/netcoreapp1.0/900.dll
+/Users/Fedyukov/Desktop/Git/900/src/900/bin/Release/netcoreapp1.0/900.pdb
+/Users/Fedyukov/Desktop/Git/900/src/900/obj/Release/netcoreapp1.0/900.AssemblyInfo.cs
+/Users/Fedyukov/Desktop/Git/900/src/900/obj/Release/netcoreapp1.0/900.dll
+/Users/Fedyukov/Desktop/Git/900/src/900/obj/Release/netcoreapp1.0/900.pdb

@@ -1,0 +1,220 @@
+﻿@using _900.Models
+@model _900.Models.ScheduleGridModel
+
+<nav class="navbar navbar-fixed-top navbar-default">
+
+    <script src='https://ajax.googleapis.com/ajax/libs/mootools/1.4.5/mootools-yui-compressed.js'></script>
+
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="offcanvas"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="glyphicon glyphicon-chevron-left"></span>
+            </button>
+
+
+            <link rel="stylesheet" href="~/lib/flip-clock/flip-clock.css">
+
+            <div class="clock-wrap">
+                <div class="hour-wrap">
+                    <div class="digit-top">
+                        <div class="front">9</div>
+                        <div class="back">9</div>
+                    </div>
+                    <div class="digit-bottom">
+                        <div class="front">9</div>
+                    </div>
+                </div>
+
+                <span class="flip-clock-divider ">
+                    <span class="flip-clock-label">
+                    </span><span class="flip-clock-dot top">
+                    </span><span class="flip-clock-dot bottom">
+                    </span>
+                </span>
+
+                <div class="min-wrap">
+                    <div class="digit-top">
+                        <div class="front">00</div>
+                        <div class="back">00</div>
+                    </div>
+                    <div class="digit-bottom">
+                        <div class="front">00</div>
+                    </div>
+                </div>
+            </div>
+            <script src='https://ajax.googleapis.com/ajax/libs/mootools/1.4.5/mootools-yui-compressed.js'></script>
+
+            <script type="text/javascript" src="~/lib/flip-clock/flip-clock.js"></script>
+
+
+        </div>
+
+        <div id="navbar" class="collapse navbar-collapse">
+
+            <ul class="nav navbar-nav navbar-center">
+                <li>
+                    <div class="header-calendar">
+                        <div class="prev" onclick="window._addWeeks(-1)">
+                            <span class="glyphicon glyphicon-chevron-left" title="Previous Week"></span>
+                        </div>
+                        <div class="picker-switch" id="navbar-week">Feb 27 - Mar 5, 2017</div>
+                        <div class="next" onclick="window._addWeeks(1)">
+                            <span class="glyphicon glyphicon-chevron-right" title="Next Week"></span>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <form id="search-form" class="navbar-form navbar-left">
+                        <div class="form-group has-feedback">
+                            <input type="text" class="form-control" autocomplete="off" id="inputValidation" placeholder="Search"
+                                   onclick="toggleDropdown(true)" onfocus="toggleDropdown(true)" />
+                            <span class="glyphicon glyphicon-search form-control-feedback" data-toggle="dropdown"
+                                  id="testdrp"
+                                  aria-haspopup="true" aria-expanded="false">
+                            </span>
+
+                            <ul class="dropdown-menu" id="search-dropdown">
+                                <li>
+                                    <a href='javascript:void(0);'>
+                                        <p class="subject">2 symbols minimum</p>
+                                    </a>
+                                </li>
+                                <li class="divider leave"></li>
+                                <li class="leave">
+                                    <a href="javascript:void(0)" onclick="toggleDropdown(false)"><i class="fa fa-sign-out"></i> Close</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </form>
+
+                </li>
+                <li id="loginLink" class="active">
+                    @{
+                        if (Model.User != null)
+                        {
+                            <a asp-action="Logout" asp-controller="Account">Logout</a>
+                        }
+                        else
+                        {
+                            <a asp-action="Register" asp-controller="Account">Login</a>
+                        }
+                    }
+                </li>
+            </ul>
+        </div>
+
+        <!-- /.nav-collapse -->
+    </div><!-- /.container -->
+</nav><!-- /.navbar -->
+
+<script>
+    toggleDropdown = function (show) {
+        console.log("toggle", show);
+        if (typeof (show) !== 'undefined') {
+            $(`#testdrp[aria-expanded=${!show}]`).dropdown('toggle');
+        } else {
+            $('#testdrp').dropdown('toggle');
+        }
+    }
+    loading = function (status) {
+        var el = $('#testdrp');
+        if (typeof (status) === 'undefined') return;
+        if (status === true) {
+            el.removeClass("glyphicon-search");
+            el.addClass("glyphicon-refresh");
+        } else {
+            el.removeClass("glyphicon-refresh");
+            el.addClass("glyphicon-search");
+        }
+    }
+
+    $("form#search-form").submit(function (e) { e.preventDefault(); });
+
+    function setSearch(subjectId, groupId) {
+        if (!subjectId || !groupId) return;
+        window._setGroup(groupId)
+            .done(x => window._setSubject(subjectId))
+            .fail(x => console.err(x));
+    }
+
+    $(function () {
+        var minlength = 2;
+        var searchRequest;
+
+        function search() {
+
+            var that = this,
+                dropdown = $("#search-dropdown"),
+                value = $(this).val();
+            dropdown.find('li').not('.leave').remove();
+            var log = function (msg) {
+                dropdown.prepend(`<li><a href='javascript:void(0);'><p class="subject">${msg}</p></a></li>`);
+            }
+
+            if (value.length < minlength) {
+                log('2 symbols minimum');
+                return;
+            };
+            if (searchRequest != null) {
+                console.log("abort")
+                searchRequest.abort();
+            }
+            log('Loading...');
+            loading(true);
+            searchRequest = $.ajax({
+                type: "POST",
+                url: "@Url.Action("Search", "Schedule")",
+                data: { 'search': value }
+            })
+                .done(function (msg) {
+                    //we need to check if the search value is still the same
+                    if (!value == $(that).val()) return;
+
+                    dropdown.find('li').not('.leave').remove();
+
+                    if (msg && msg.results && msg.results.length > 0) {
+                        var template = "";
+                        msg.results.forEach(entity => {
+                            template += `<li>
+                                            <a href="javascript:void(0);" onclick='setSearch(${entity.idSubject},${entity.idGroup})'
+                                                data-subjectId='${entity.idSubject}' data-groupId='${entity.idGroup}'>
+                                                <p class ="subject">${entity.subjectShort}</p>`;
+                            if (entity.lectors && entity.lectors.length > 0) {
+                                entity.lectors.forEach((lector, index) => {
+                                    template += `<p class="lector">
+                                                    <span>${lector.name}
+                                                        ${index === 0 ? `<span class="group">${entity.groupName}</span>` : ""}
+                                                    </span>
+                                                </p>`;
+                                });
+
+                            }
+
+                            template += `</a></li>`;
+                        });
+
+
+                        dropdown.prepend(template);
+                        toggleDropdown(true);
+                    } else {
+                        log('No result');
+                    }
+                    loading(false);
+                })
+            .fail(function (err) {
+                if (err.statusText == "abort") return;
+                log('Error...');
+                loading(false);
+                console.log(err);
+            });
+
+        }
+
+        $("#inputValidation").keyup($.debounce(search, 750));
+    });
+</script>

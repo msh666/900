@@ -1,0 +1,21 @@
+﻿<Properties StartupConfiguration="{EAC8BA34-6E78-43C2-BCB2-AE3A63C82391}|Default">
+  <MonoDevelop.Ide.Workbench ActiveDocument="src/900/appsettings.json">
+    <Files>
+      <File FileName="src/900/Controllers/ScheduleController.cs" Line="16" Column="32" />
+      <File FileName="src/900/web.config" Line="17" Column="22" />
+      <File FileName="global.json" Line="1" Column="1" />
+      <File FileName="src/900/bower.json" Line="1" Column="1" />
+      <File FileName="src/900/Program.cs" Line="1" Column="1" />
+      <File FileName="src/900/appsettings.json" Line="11" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.src.900 PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Breakpoint file="/Users/Fedyukov/Desktop/Git/900/src/900/Controllers/ScheduleController.cs" relfile="src/900/Controllers/ScheduleController.cs" line="22" column="1" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations />
+</Properties>

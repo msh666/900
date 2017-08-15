@@ -1,0 +1,219 @@
+﻿@import "_variables.scss";
+
+
+#arrows {
+    span {
+        border-radius: 6px;
+        border: 1px solid $grey;
+        padding: 2px;
+        font-size: smaller;
+        font-weight: lighter;
+    }
+}
+
+.navbar-center {
+
+
+    @media screen and (max-width: 767px) {
+        .header-calendar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    }
+
+    @media screen and (min-width: 768px) {
+        $scaleX: 42%;
+        position: absolute;
+        left: $scaleX;
+        top: 50%;
+        transform: translateX(-$scaleX) translateY(-50%);
+    }
+
+    .header-calendar {
+        * {
+            font-size: 16px;
+        }
+
+        & > div {
+            display: inline-block;
+        }
+
+        .picker-switch {
+            color: $sideValue;
+            font-size: 16px;
+        }
+
+        .prev, .next {
+            @extend #arrows;
+
+            span {
+                cursor: pointer;
+
+                &:hover {
+                    background-color: $navLinksColor;
+                    color: white;
+                }
+            }
+        }
+
+        .prev {
+            padding-right: 10px;
+        }
+
+        .next {
+            padding-left: 10px;
+        }
+    }
+}
+
+
+
+.calendar {
+    padding: 15px;
+    padding-top: 0px;
+
+    tr.active-week {
+        background-color: $activeWeek;
+        border-radius: 5px;
+
+        & > td {
+            $radius: 4px;
+            border-radius: 0px;
+
+            &:first-child {
+                border-bottom-left-radius: $radius;
+                border-top-left-radius: $radius;
+            }
+
+            &:last-child {
+                border-bottom-right-radius: $radius;
+                border-top-right-radius: $radius;
+            }
+        }
+    }
+
+    td.subject-here {
+        color: $activeOrange !important;
+    }
+
+    td {
+
+        &.active, &.active:hover {
+            background-color: $activeCalendarCell !important;
+            border-radius: 4px !important;
+        }
+    }
+
+    .day.old, .day.new, .dow {
+        color: $grey;
+    }
+
+
+    thead {
+        tr:first-child {
+            th {
+                &:first-child {
+                    text-align: left;
+                }
+
+                &:last-child {
+                    text-align: right;
+                }
+
+                &.prev, &.next {
+                    @extend #arrows;
+                }
+            }
+        }
+
+
+        tr:last-child {
+            border-bottom: $greyBorder;
+        }
+    }
+
+    hr {
+        border-bottom: $greyBorder;
+        margin-left: -12px;
+        margin-right: -12px;
+        margin-top: 0px;
+    }
+
+    div.subject-colors {
+        ul {
+            margin-bottom: 0px;
+            padding-left: 45px;
+
+            li {
+                display: inline-block;
+                position: relative;
+
+                &:before {
+                    content: ' \25CF';
+                    left: -19px;
+                    font-size: 19px;
+                    top: -3px;
+                    margin-top: -1px;
+                }
+            }
+        }
+    }
+
+    div.info {
+        h2 {
+            font-size: 12px;
+            margin: 15px;
+            color: rgb(172,178,180);
+        }
+
+        ul {
+            padding-left: 0px;
+            margin: 15px;
+
+            li {
+                position: relative;
+                font-size: 14px;
+                margin: 0;
+                color: rgb(82,107,120);
+                margin-top: 15px;
+                margin-bottom: 15px;
+                margin-left: -4px;
+                padding-left: 2px;
+                padding-top: 2px;
+                border-left: 3px solid;
+
+                &.active {
+                    &:before {
+                        content: ' \25CF';
+                        position: absolute;
+                        left: -19px;
+                        font-size: 19px;
+                        top: -3px;
+                        margin-top: -1px;
+                        color: #ff8c00;
+                    }
+                }
+
+                &:first-child {
+                    margin-top: 7px;
+                }
+
+                &:last-child {
+                    margin-bottom: 7px;
+                }
+            }
+        }
+    }
+
+    tr {
+        td, th {
+            text-align: center;
+        }
+    }
+
+    .cell-canvas {
+        position: absolute;
+        left: 0;
+    }
+}

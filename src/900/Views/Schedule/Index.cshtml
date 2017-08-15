@@ -1,0 +1,130 @@
+﻿<div class="container-fluid">
+    @{
+        Html.RenderPartial("_Nav");
+    }
+
+    <div class="content container-fluid">
+        <div class="row row-offcanvas row-offcanvas-right">
+            @{
+                Html.RenderPartial("_ScheduleGrid");
+            }
+            @{
+                Html.RenderPartial("_Sidebar");
+            }
+        </div><!--/row-->
+    </div>
+
+    @*<hr>*@
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('[data-toggle="offcanvas"]').click(function () {
+            $('.row-offcanvas').toggleClass('active');
+        });
+
+        moment.locale('en', {
+            week: { dow: 1 }, // Monday is the first day of the week
+            weekdaysMin: 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_'),
+        });
+
+        window._setGroup = function (id, weekStart) {
+            var defer = jQuery.Deferred();
+
+            if (!weekStart) {
+                weekStart = window._getSelectedDay().startOf('week').format('x');
+            }
+            if (!id) {
+                id = window._getCurrentGroup();
+            }
+            console.log(weekStart, id);
+
+            $.ajax({
+                url: "@Url.Action("ShowSchedule", "Schedule")",
+                type: "POST",
+                data: { start: weekStart, groupId: id }
+            }).done(function (partialViewResult) {
+                $("#home").html(partialViewResult);
+                defer.resolve(id);
+            }).fail(function (e) {
+                defer.reject(e);
+            });
+            return defer.promise();
+        }
+        window._setSubject = function (id) {
+            var defer = jQuery.Deferred();
+            window._setActiveSubject(id);
+            $.ajax({
+                url: "@Url.Action("ShowSubjectInfo", "Schedule")",
+                type: "POST",
+                data: { subjectId: id }
+            }).done(function (partialViewResult) {
+                $("#subject-details").html(partialViewResult);
+                window._notifySubjectSelected(id);
+                defer.resolve(id);
+                window._setActiveSubject(id);
+                window._toDetails();
+            }).fail(function (e) {
+                defer.reject(e);
+            });
+
+            return defer.promise();
+        }
+
+        window._setActiveSubject = function (subjectId) {
+            subjectId = parseInt(subjectId);
+            $(".subjectRow #subject[data-subject-id]").each(function () {
+                var id = parseInt($(this).attr('data-subject-id'));
+                if (id === subjectId) {
+                    $(this).addClass('active');
+                } else {
+                    $(this).removeClass('active');
+                }
+            });
+        }
+
+        window._addWeeks = function (i) {
+            var m = window._getSelectedDay().add(i, 'weeks');
+            window._$picker.data("DateTimePicker").date(m);
+        }
+        window._setDay = function (m) {
+            window._$picker.data("DateTimePicker").date(m);
+        }
+        window._getCurrentGroup = function () {
+            return $(".nav.nav-tabs #groupTab.active").attr("data-group-id");
+        }
+        window._getSelectedDay = function () {
+            return window._$picker.data("DateTimePicker").date();
+        }
+
+        window._notifySubjectSelected = function (id) {
+            var pattern = 'MM/DD/YYYY',
+                first = moment($("[data-action=selectDay]:first").attr("data-day"), pattern).format('x'),
+                last = moment($("[data-action=selectDay]:last").attr("data-day"), pattern).format('x'),
+                currentGroup = window._getCurrentGroup();
+
+            $("td[data-action=selectDay]").removeClass("subject-here");
+
+            console.log(first, last, currentGroup, id);
+
+            $.ajax({
+                url: "@Url.Action("SubjectsByDateInRange", "Schedule")",
+                type: "POST",
+                data: { start: first, end: last, groupId: currentGroup, subjectId: id }
+            }).done(function (result) {
+                if (!result || !result.subjects) return;
+                result.subjects.forEach(x => x.date = moment(x.date).format(pattern));
+                var dates = result.subjects.map(x => x.date).filter(function (value, index, array) {
+                    return array.indexOf(value) == index;
+                });
+                dates.forEach(date => $(`[data-action=selectDay][data-day='${date}']`).addClass("subject-here"));
+                console.log(result.subjects, dates);
+            });
+        }
+
+        window._toDetails = function() {
+            $('#tab-1').tab('show');
+        }
+
+    });
+</script>

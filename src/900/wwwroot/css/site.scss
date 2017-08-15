@@ -1,0 +1,8 @@
+﻿/*@import '../lib/bootstrap/dist/css/bootstrap.min.css';
+@import '../lib/font-awesome/css/font-awesome.min.css';*/
+@import "./import/_main.scss";
+
+html,
+body {
+  overflow-x: hidden; /* Prevent scroll on narrow devices */
+}

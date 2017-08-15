@@ -1,0 +1,162 @@
+﻿@import "_variables.scss";
+
+$width: percentage(1/6);
+$gridCellPaddingTop: 10px;
+$thOpacity: 0.85;
+
+.nav-tabs {
+    background-color: $navtabBg;
+
+    li {
+
+        a {
+            background-color: $navtabColor;
+            color: $navLinksColor;
+            border-radius: 0;
+            text-align: center;
+            min-width: 95px;
+            height: 100%;
+            font-size: medium;
+            padding-top: 3px;
+            padding-bottom: 3px;
+            margin-right: 1px;
+
+            &:hover {
+                background-color: white;
+            }
+        }
+
+        &.active a {
+            background: white linear-gradient(to bottom, $navtabColor, $navtabColor 6%, transparent 0%, transparent 100%);
+        }
+    }
+
+    .loader {
+        position: absolute;
+        z-index: 1;
+        width: 25px;
+        height: 25px;
+        border: 2px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 2px solid #3498db;
+        animation: spin 2s linear infinite;
+        background-color: rgba(0,0,0,0.3);
+        margin-top: -2px;
+        left: 37%;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+}
+
+.my-anon {
+    text-align: center;
+    height:100%;
+    img {
+        max-height:85vh;
+        width:auto;
+    }
+
+    p {
+        display:none;
+        padding-top: 5px;
+        font-size: 16px;
+        color: $sideValue;
+    }
+}
+
+table {
+    width: 100%;
+
+    & .fade {
+        opacity: 0.5;
+    }
+
+    td {
+        width: $width;
+        min-width: 100px;
+        position: relative;
+        font-size: 14px;
+        font-weight: 500;
+        font-size: small;
+
+        &:after {
+            content: '';
+            display: block;
+            margin-top: 100%;
+        }
+
+        .content {
+            position: absolute;
+            padding: 10px;
+            padding-top: $gridCellPaddingTop;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            margin-top: 0px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            word-break: break-all;
+            border: $gridBorder;
+
+            &.active {
+                #subject {
+                    color: $active;
+                }
+            }
+
+            #subject {
+                color: black;
+
+                &.active {
+                    color: $activeOrange;
+
+                    &:before {
+                        content: ' \25CF';
+                        position: absolute;
+                        left: 1px;
+                        margin-top: -1px;
+                        color: $activeOrange;
+                    }
+                }
+            }
+        }
+    }
+
+    th {
+        color: $navLinksColor;
+        opacity: $thOpacity;
+        font-size: small;
+
+        &.active {
+            opacity: 1;
+            color: $active;
+        }
+    }
+
+    thead tr {
+        border-bottom: $borderBottom;
+
+        th {
+            padding-top: 7px;
+            padding-bottom: 7px;
+            text-align: center;
+        }
+    }
+
+    tbody th {
+        vertical-align: top;
+        padding-top: $gridCellPaddingTop;
+        padding-right: 20px;
+        padding-left: 12px;
+        border-bottom: $gridBorder;
+    }
+}

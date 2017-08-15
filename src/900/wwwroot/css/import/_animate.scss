@@ -1,0 +1,32 @@
+﻿.animate-show,
+.animate-hide {
+  transition: all linear 1s;
+}
+
+.animate-show.ng-hide-remove,
+.animate-hide.ng-hide-add.ng-hide-add-active {
+  opacity: 0;
+  display: block !important;
+}
+
+.animate-hide.ng-hide-add,
+.animate-show.ng-hide-remove.ng-hide-remove-active {
+  opacity: 1;
+  display: block !important;
+}
+
+.fade-in-out {
+  /* start 'enter' transition */
+  &.ng-enter {
+    /* transition on enter for .5s */
+    transition: .5s;
+    /* start with opacity 0 (invisible) */
+    opacity: 0;
+  }
+
+  /* end 'enter' transition */
+  &.ng-enter-active {
+    /* end with opacity 1 (fade in) */
+    opacity: 1;
+  }
+}
